@@ -24,21 +24,20 @@ export class ImageGallery extends Component {
       prevState.page < this.state.page
     ) {
       this.setState({ loading: true });
-
-      prevProps.searchQuery !== this.props.searchQuery &&
+      let { page } = this.state;
+      if (prevProps.searchQuery !== this.props.searchQuery) {
         this.setState({ images: [], page: 1, totalImages: 0 });
-
-      getImages(this.props.searchQuery, this.state.page, PER_PAGE)
+        page = 1;
+      }
+      getImages(this.props.searchQuery, page, PER_PAGE)
         .then(response => response.json())
         .then(({ hits, totalHits, total }) => {
           if (totalHits > 0) {
-            this.state.page === 1 &&
-              toast.success(`Total found ${total} images`);
-
             this.setState({
               images: [...this.state.images, ...hits],
               totalImages: total,
             });
+            page === 1 && toast.success(`Total found ${total} images`);
             return;
           }
           toast.error('Error! Nothing found. Please use another query');
